@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'base',
-]   
+]      
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
@@ -74,7 +74,7 @@ WSGI_APPLICATION = 'loginSignup.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-# ALLOWS US TO CONNECT TO POSTGRESS DB
+# ALLOWS US TO CONNECT TO POSTGRESS D B
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',

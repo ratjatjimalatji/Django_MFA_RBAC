@@ -17,7 +17,7 @@ def authView(request):
   if form.is_valid():
    user = form.save()
    login(request, user) # after a successful login the user is logged in & redirected to the home page
-   return redirect('/home')
+   return redirect('/home/')
    return redirect("base:login")
  else:
   form = RegisterForm()
