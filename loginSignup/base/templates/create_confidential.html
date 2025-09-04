@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Upload a confidential{% endblock %}
+
+{% block content %}
+       <form method="POST">
+            {% csrf_token %}
+            {{ form }}
+            <button type="submit" class="btn btn-success">Upload confidential text</button>
+        </form>
+    </div>
+
+{% endblock %}

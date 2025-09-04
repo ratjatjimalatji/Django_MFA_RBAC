@@ -9,7 +9,7 @@
     </div>
     
     <div> <!-- Owners & admins of the post can delete a post-->
-      {% if user == post.author or perms.main.delete_post %}
+        {% if user == post.author or perms.main.delete_post %}
       <form method="post">
         {% csrf_token %}
         <button
