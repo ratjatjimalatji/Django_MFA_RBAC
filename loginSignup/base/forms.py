@@ -32,38 +32,28 @@ class ImageForm(forms.ModelForm):
     class Meta:
         model = Image
         fields = ['title', 'image', 'description']
-        
-        
-    # def __init__(self, *args, **kwargs):
-    #     self.user = kwargs.pop('user', None)
-    #     super().__init__(*args, **kwargs)
-
-    def save(self, commit=True):
-        image = super().save(commit=False)
-        if self.user:
-            image.author = self.user
-        if commit:
-            image.save()
-        return image
-
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'image': forms.FileInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+        }
+    
 class DocumentForm(forms.ModelForm):
     class Meta:
         model = Document
         fields = ['title', 'document', 'description']
-    # def __init__(self, *args, **kwargs):
-    #     self.user = kwargs.pop('user', None)
-    #     super().__init__(*args, **kwargs)
-
-    def save(self, commit=True):
-        document = super().save(commit=False)
-        if self.user:
-            document.author = self.user
-        if commit:
-            document.save()
-        return document
-    
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'document': forms.FileInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+        }
 
 class ConfidentialForm(forms.ModelForm):
     class Meta:
         model = Document
         fields = ['title', 'document', 'description']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'document': forms.FileInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+        }

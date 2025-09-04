@@ -24,5 +24,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include(("base.urls", "base"), "base")),
     path('', include('django.contrib.auth.urls')),
-    
+    path('sign-up', include('django.contrib.auth.urls')),
 ]+ static(settings.STATIC_URL)

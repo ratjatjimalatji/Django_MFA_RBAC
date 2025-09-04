@@ -5,20 +5,52 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import login
 from django.contrib import messages
-from .models import Post
+from .models import Post, Image, Document, ConfidentialFile
 
 @login_required(login_url="/login")
 def home(request):
     posts = Post.objects.all()
+    images = Image.objects.all()  
+    documents = Document.objects.all()  
+    confidential_files = ConfidentialFile.objects.all()  
 
     if request.method == "POST":
         post_id = request.POST.get("post-id")
-        post = Post.objects.filter(id=post_id).first()
-        if post and (post.author == request.user or request.user.has_perm("base.delete_post")):
+        image_id = request.POST.get("image-id")  # Add this
+        document_id = request.POST.get("document-id")  # Add this
+        confidential_id = request.POST.get("confidential-id")  # Add this
+        
+        #Deleting a post
+        if post_id:
+          post = Post.objects.filter(id=post_id).first()
+          if post and (post.author == request.user or request.user.has_perm("base.delete_post")):
             post.delete()
         print(post_id)
 
-    return render(request, "home.html", {"posts": posts})
+        # Delete document
+        if document_id:
+            document = Document.objects.filter(id=document_id).first()
+            if document and (document.author == request.user or request.user.has_perm("base.delete_document")):
+                document.delete()
+
+        # Delete image
+        if image_id:
+            image = Image.objects.filter(id=image_id).first()
+            if image and (image.author == request.user or request.user.has_perm("base.delete_image")):
+                image.delete()
+
+        # Delete confidential file
+        if confidential_id:
+            confidential = ConfidentialFile.objects.filter(id=confidential_id).first()
+            if confidential and (confidential.author == request.user or request.user.has_perm("base.delete_confidentialfile")):
+                confidential.delete()
+
+    return render(request, "home.html", {
+        "posts": posts,
+        "images": images,
+        "documents": documents,
+        "confidential_files": confidential_files
+    })
 
 def authView(request):
     if request.method == "POST":
@@ -66,26 +98,29 @@ def create_post(request):
 
 
 @login_required(login_url="/login")
-#@permission_required("base.add_image", login_url="/login", raise_exception=True)
+@permission_required("base.add_image", login_url="/login", raise_exception=True)
 def create_image(request):
-      if request.method == 'POST':
-          form = ImageForm(request.POST, request.FILES)
-          if form.is_valid():
+    if request.method == 'POST':
+        form = ImageForm(request.POST, request.FILES)
+        if form.is_valid():
             image = form.save(commit=False)
             image.author = request.user
             image.save()
+            messages.success(request, 'Image uploaded successfully!')
             return redirect("/home")
-          else:
-            form = ImageForm()
+        else:
+            # Add this to debug what's wrong
+            messages.error(request, 'Please fix the errors below.')
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+    else:
+        form = ImageForm()
 
-          return render(request, 'create_image.html', {"form": form})
-      else:
-          form = ImageForm()
-
-      return render(request, 'create_image.html', {"form": form})
+    return render(request, 'create_image.html', {"form": form})
 
 @login_required(login_url="/login")
-#@permission_required("base.add_document", login_url="/login", raise_exception=True)
+@permission_required("base.add_document", login_url="/login", raise_exception=True)
 def create_document(request):
       if request.method == 'POST':
           form = DocumentForm(request.POST, request.FILES)
@@ -94,17 +129,13 @@ def create_document(request):
             document.author = request.user
             document.save()
             return redirect("/home")
-          else:
-            form = DocumentForm()
-
-          return render(request, 'create_document.html', {"form": form})
       else:
-          form = DocumentForm()
+            form = DocumentForm()
 
       return render(request, 'create_document.html', {"form": form})
 
 @login_required(login_url="/login")
-#@permission_required("base.add_confidential", login_url="/login", raise_exception=True)
+@permission_required("base.add_confidential", login_url="/login", raise_exception=True)
 def create_confidential(request):
       if request.method == 'POST':
           form = ConfidentialForm(request.POST, request.FILES)
@@ -113,11 +144,7 @@ def create_confidential(request):
             confidential.author = request.user
             confidential.save()
             return redirect("/home")
-          else:
-            form = ConfidentialForm()
-
-          return render(request, 'create_confidential.html', {"form": form})
       else:
-          form = ConfidentialForm()
+            form = ConfidentialForm()
 
       return render(request, 'create_confidential.html', {"form": form})
