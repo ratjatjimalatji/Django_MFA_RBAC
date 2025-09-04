@@ -1,18 +1,17 @@
 {% extends "base.html" %}
-{%block title %} Sign up page Page {% endblock title%}
+{% block title %}Sign up page{% endblock %}
 
 {% block content %}
-{% csrf_token%} 
 <div class="shadow-wrap">
     <div class="form-wrap">
-        <h3> Hello user</h3>
+        <h3>Hello user</h3>
         <h1>Welcome to the sign up Page</h1>
         <form method="POST">
-            {% csrf_token %} {{form}}
-          
+            {% csrf_token %}
+            {{ form }}
             <button type="submit" class="btn btn-success">Register your account</button>
         </form>
-        <a class="signup-link" href="{% url "base:login" %}">Go to login page </a>
+        <a class="signup-link" href="{% url "base:login" %}">Go to login page</a>
     </div>
 </div>
-{% endblock content %}
+{% endblock %}

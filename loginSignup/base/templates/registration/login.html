@@ -1,18 +1,17 @@
 {% extends "base.html" %}
 {%block title %} Login Page {% endblock title%}
-
-{% block content %}
-{% csrf_token%} 
-# allows us to travel to an endpoint  # allows us to have a form that uses Django predefined methods, form will use crispy filter form to enhance UI
+{% block content %} {% csrf_token%} 
+<!-- allows us to travel to an endpoint  # allows us to have a form that uses Django predefined methods, form will use crispy filter form to enhance UI -->
 <div class="shadow-wrap">
     <div class="form-wrap">
-        <h3> Log in</h3>
+        <h3>Log in</h3>
         <h1>Welcome to the login Page</h1>
         <form method="POST">
-            {% csrf_token %}             {{ form}}
+            {% csrf_token %}
+            {{ form }}
+             <p>Don't have an account? Create one <a href="/sign-up">Here</a>!</p>
             <button type="submit" class="btn btn-success">Submit</button>
         </form>
-        <a class="signup-link" href="{% url "base:authView" %}">Sign up</a>
     </div>
 </div>
-{% endblock content%}
+{% endblock %}

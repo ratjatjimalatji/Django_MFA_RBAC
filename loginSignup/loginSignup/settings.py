@@ -70,7 +70,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'loginSignup.wsgi.application'
-
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
