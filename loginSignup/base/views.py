@@ -5,10 +5,20 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
+from .models import Post
 
 @login_required(login_url="/login")
 def home(request):
-    return render(request, "home.html", {})
+    posts = Post.objects.all()
+
+    if request.method == "POST":
+        post_id = request.POST.get("post-id")
+        post = Post.objects.filter(id=post_id).first()
+        if post and post.author == request.user:
+            post.delete()
+        print(post_id)
+
+    return render(request, "home.html", {"posts": posts})
 
 def authView(request):
     if request.method == "POST":
@@ -41,12 +51,13 @@ def sign_up(request):
 @login_required(login_url="/login")
 def create_post(request):
     if request.method == 'POST':
-        form = PostForm(request.POST, request.FILES)
+        form = PostForm(request.POST)
         if form.is_valid():
             post = form.save(commit=False)
-            post.author = request.user  # accesses the user that i signed in
+            post.author = request.user
             post.save()
-            return redirect('/home')  # Replace 'post_list' with your desired redirect URL
+            return redirect("/home")
     else:
         form = PostForm()
-    return render(request, 'create_post.html', {'form': form})
+
+    return render(request, 'create_post.html', {"form": form})
