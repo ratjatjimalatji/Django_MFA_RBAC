@@ -8,7 +8,7 @@
       <p>{{post.description}}</p>
     </div>
     
-    <div> <!-- Owners of the post can delete a post-->
+    <div> <!-- Owners & admins of the post can delete a post-->
       {% if user == post.author or perms.main.delete_post %}
       <form method="post">
         {% csrf_token %}

@@ -2,7 +2,7 @@ from urllib import request
 from .forms import RegisterForm, PostForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from .models import Post
@@ -14,7 +14,7 @@ def home(request):
     if request.method == "POST":
         post_id = request.POST.get("post-id")
         post = Post.objects.filter(id=post_id).first()
-        if post and post.author == request.user:
+        if post and (post.author == request.user or request.user.has_perm("base.delete_post")):
             post.delete()
         print(post_id)
 
@@ -49,6 +49,7 @@ def sign_up(request):
     return render(request, 'registration/sign_up.html', {"form": form})
 
 @login_required(login_url="/login")
+@permission_required("base.add_post", login_url="/login", raise_exception=True)
 def create_post(request):
     if request.method == 'POST':
         form = PostForm(request.POST)
