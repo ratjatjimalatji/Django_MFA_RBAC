@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Create Confidential File{% endblock %}
+{% block title %}Edit Confidential File{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -7,7 +7,7 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h4>Create New Confidential File</h4>
+                    <h4>Edit Confidential File</h4>
                 </div>
                 <div class="card-body">
                     <form method="post">
@@ -40,7 +40,6 @@
                             {% for error in form.content.errors %}
                                 <div class="text-danger"><small>{{ error }}</small></div>
                             {% endfor %}
-                            <div class="form-text">Enter the confidential content here.</div>
                         </div>
                         
                         <!-- Description field -->
@@ -50,14 +49,21 @@
                             {% for error in form.description.errors %}
                                 <div class="text-danger"><small>{{ error }}</small></div>
                             {% endfor %}
-                            <div class="form-text">Optional: Brief description of this confidential file.</div>
                         </div>
                         
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-primary me-md-2">Create Confidential File</button>
+                            <button type="submit" class="btn btn-primary me-md-2">Save Changes</button>
                             <a href="{% url 'base:home' %}" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
+                </div>
+                
+                <!-- Optional: Show file info -->
+                <div class="card-footer text-muted">
+                    <small>
+                        Created by: {{ confidential.author.username }} | 
+                        Created on: {{ confidential.created_at|date:"M d, Y H:i" }}
+                    </small>
                 </div>
             </div>
         </div>

@@ -2,7 +2,7 @@ from django.db import models
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Post, Image, Document
+from .models import ConfidentialFile, Post, Image, Document
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -50,10 +50,10 @@ class DocumentForm(forms.ModelForm):
 
 class ConfidentialForm(forms.ModelForm):
     class Meta:
-        model = Document
-        fields = ['title', 'document', 'description']
+        model = ConfidentialFile  # Changed from Document to ConfidentialFile
+        fields = ['title', 'content', 'description']  # Added 'content' field
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'document': forms.FileInput(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 8}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }

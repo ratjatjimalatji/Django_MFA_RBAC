@@ -1,6 +1,6 @@
 from urllib import request
 from .forms import RegisterForm, PostForm, ImageForm, DocumentForm, ConfidentialForm
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import login
@@ -135,16 +135,42 @@ def create_document(request):
       return render(request, 'create_document.html', {"form": form})
 
 @login_required(login_url="/login")
-@permission_required("base.add_confidential", login_url="/login", raise_exception=True)
+@permission_required("base.add_confidentialfile", login_url="/login", raise_exception=True)
 def create_confidential(request):
-      if request.method == 'POST':
-          form = ConfidentialForm(request.POST, request.FILES)
-          if form.is_valid():
+    if request.method == 'POST':
+        form = ConfidentialForm(request.POST)
+        if form.is_valid():
             confidential = form.save(commit=False)
             confidential.author = request.user
             confidential.save()
-            return redirect("/home")
-      else:
-            form = ConfidentialForm()
+            messages.success(request, 'Confidential file created successfully!')
+            return redirect("base:home")
+        else:
+            messages.error(request, 'Please fix the errors below.')
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+    else:
+        form = ConfidentialForm()
 
-      return render(request, 'create_confidential.html', {"form": form})
+    return render(request, 'create_confidential.html', {"form": form})
+
+@login_required
+def edit_confidential_file(request, confidential_id):
+    confidential_file = get_object_or_404(ConfidentialFile, pk=confidential_id)
+    
+    # Check if the user is the author or an admin
+    if request.user != confidential_file.author and not request.user.is_staff:
+        messages.error(request, "You don't have permission to edit this file.")
+        return redirect('base:home')
+
+    if request.method == 'POST':
+        form = ConfidentialForm(request.POST, instance=confidential_file)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Confidential file updated successfully!')
+            return redirect('base:home') 
+    else:
+        form = ConfidentialForm(instance=confidential_file)
+    
+    return render(request, 'edit_confidential.html', {'form': form, 'confidential': confidential_file})
