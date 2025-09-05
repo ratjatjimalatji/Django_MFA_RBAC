@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <h1 class="mb-4">Analytics Dashboard</h1>
+    
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Requests (24h)</h5>
+                    <h2 class="card-text">{{ stats.total_requests_24h }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Requests (1h)</h5>
+                    <h2 class="card-text">{{ stats.total_requests_1h }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-{% if stats.error_rate_24h > 10 %}danger{% elif stats.error_rate_24h > 5 %}warning{% else %}success{% endif %} text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Error Rate (24h)</h5>
+                    <h2 class="card-text">{{ stats.error_rate_24h|floatformat:1 }}%</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-{% if stats.avg_response_time_1h > 2000 %}danger{% elif stats.avg_response_time_1h > 1000 %}warning{% else %}success{% endif %} text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Avg Response (1h)</h5>
+                    <h2 class="card-text">{{ stats.avg_response_time_1h|floatformat:0 }}ms</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Anomalies Alert -->
+    {% if anomalies %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">🚨 Active Anomalies Detected</h4>
+                <p>There are {{ anomalies.count }} unresolved anomalies that require attention.</p>
+                <hr>
+                {% for anomaly in anomalies %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <strong>{{ anomaly.get_anomaly_type_display }}</strong>
+                        <span class="badge bg-{{ anomaly.severity }}">{{ anomaly.severity|title }}</span>
+                        <br>
+                        <small>{{ anomaly.description }}</small>
+                        <br>
+                        <small class="text-muted">{{ anomaly.detected_at|timesince }} ago</small>
+                    </div>
+                    <form method="post" action="{% url 'base:resolve_anomaly' anomaly.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-success">Mark Resolved</button>
+                    </form>
+                </div>
+                {% if not forloop.last %}<hr>{% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Real-time Chart -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Request Traffic</h5>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="updateChart('1h')">1H</button>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="updateChart('24h')">24H</button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="updateChart('7d')">7D</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="trafficChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Distribution -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Status Code Distribution (24h)</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart" width="200" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- Top Endpoints -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Top Endpoints (24h)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>Path</th>
+                                    <th>Requests</th>
+                                    <th>Avg Response</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for endpoint in top_endpoints %}
+                                <tr>
+                                    <td><span class="badge bg-secondary">{{ endpoint.method }}</span></td>
+                                    <td><code>{{ endpoint.path|truncatechars:30 }}</code></td>
+                                    <td>{{ endpoint.count }}</td>
+                                    <td>{{ endpoint.avg_response_time|floatformat:0 }}ms</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="4">No data available</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>

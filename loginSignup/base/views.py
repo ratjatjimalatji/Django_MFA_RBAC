@@ -202,10 +202,10 @@ def create_confidential(request):
     return render(request, 'create_confidential.html', {"form": form})
 
 @login_required
+@permission_required("base.edit_confidentialfile", login_url="/login", raise_exception=True)
 def edit_confidential_file(request, confidential_id):
     confidential_file = get_object_or_404(ConfidentialFile, pk=confidential_id)
     
-    # Check if the user is the author or an admin
     if request.user != confidential_file.author and not request.user.is_staff:
         messages.error(request, "You don't have permission to edit this file.")
         return redirect('base:home')
