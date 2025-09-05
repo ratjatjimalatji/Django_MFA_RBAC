@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import authView, home, create_image, create_document, create_confidential, edit_confidential_file #, manage, verify, two_factor
+from .views import authView, home, create_image, create_document, create_confidential, edit_confidential_file, edit_document_file, edit_image_file #, manage, verify, two_factor
 from . import views
 from django.contrib.auth.views import LogoutView
 from django.urls import reverse_lazy
@@ -11,9 +11,15 @@ urlpatterns = [
     path("home/", home, name="home"),  # Explicit /home/ path
     path("signup/", authView, name="signup"),
     path("create-post/", views.create_post, name="create_post"),
+    
     path("image/", create_image, name="create_image"),
+    path('edit_image/<int:image_id>/', edit_image_file, name='edit_image'),
+    
     path("documents/", create_document, name="create_document"),
+    path('edit_document/<int:document_id>/', edit_document_file, name='edit_document'),
+    
     path('logout/', LogoutView.as_view(next_page=reverse_lazy('signup')), name='logout'),
+    
     path("confidential/", create_confidential, name="create_confidential"),
     path('edit_confidential/<int:confidential_id>/', edit_confidential_file, name='edit_confidential'),
    

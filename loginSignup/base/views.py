@@ -119,6 +119,30 @@ def create_image(request):
 
     return render(request, 'create_image.html', {"form": form})
 
+@login_required
+def edit_image_file(request, image_id):
+    # CRITICAL FIX: You were getting ConfidentialFile instead of Image
+    image_file = get_object_or_404(Image, pk=image_id)
+    
+    # Check if the user is the author or an admin
+    if request.user != image_file.author and not request.user.is_staff:
+        messages.error(request, "You don't have permission to edit this file.")
+        return redirect('base:home')
+
+    if request.method == 'POST':
+        form = ImageForm(request.POST, request.FILES, instance=image_file) # Added request.FILES
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Image file updated successfully!')
+            return redirect('base:home') 
+        else:
+            messages.error(request, 'Please fix the errors below.')
+    else:
+        form = ImageForm(instance=image_file)
+    
+    return render(request, 'edit_image.html', {'form': form, 'image': image_file})
+
+
 @login_required(login_url="/login")
 @permission_required("base.add_document", login_url="/login", raise_exception=True)
 def create_document(request):
@@ -133,6 +157,28 @@ def create_document(request):
             form = DocumentForm()
 
       return render(request, 'create_document.html', {"form": form})
+
+@login_required
+def edit_document_file(request, document_id):
+    document_file = get_object_or_404(Document, pk=document_id)
+    
+    if request.user != document_file.author and not request.user.is_staff:
+        messages.error(request, "You don't have permission to edit this file.")
+        return redirect('base:home')
+
+    if request.method == 'POST':
+        # Added request.FILES for handling document uploads
+        form = DocumentForm(request.POST, request.FILES, instance=document_file)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Document file updated successfully!')
+            return redirect('base:home') 
+        else:
+            messages.error(request, 'Please fix the errors below.')
+    else:
+        form = DocumentForm(instance=document_file)
+    
+    return render(request, 'edit_document.html', {'form': form, 'document': document_file})
 
 @login_required(login_url="/login")
 @permission_required("base.add_confidentialfile", login_url="/login", raise_exception=True)
